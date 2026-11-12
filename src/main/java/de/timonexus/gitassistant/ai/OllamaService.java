@@ -50,6 +50,7 @@ public class OllamaService implements StructuredResponseGenerator {
         return sendRequest(prompt, schema);
     }
 
+
     private String sendRequest(String prompt, JsonNode schema)
             throws IOException, InterruptedException {
 
@@ -72,9 +73,17 @@ public class OllamaService implements StructuredResponseGenerator {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
+        long startTime = System.currentTimeMillis();
+
         HttpResponse<String> response = httpClient.send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
+        );
+
+        long duration = System.currentTimeMillis() - startTime;
+
+        System.out.println(
+                "Ollama request completed in " + duration + " ms"
         );
 
         if (response.statusCode() != 200) {
@@ -98,6 +107,7 @@ public class OllamaService implements StructuredResponseGenerator {
 
         return responseData.message().content();
     }
+
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
