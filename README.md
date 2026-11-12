@@ -21,9 +21,23 @@ Before using Git Assistant, make sure you have:
 - Java 25 or later
 - Git
 - [Ollama](https://ollama.com/)
-- Maven (for building from source)
 
-## AI Model
+Maven is only required if you want to build Git Assistant from source.
+
+## Installation
+
+1. Download the latest release from the [GitHub Releases page](https://github.com/timonexus/git-assistant/releases).
+2. Download the `git-assistant-1.0.0.jar` file.
+3. Make sure Java 25 or later is installed.
+4. Open a terminal in the directory containing the downloaded JAR.
+
+You can verify the installation with:
+
+```powershell
+java -jar git-assistant-1.0.0.jar help
+```
+
+## AI Model Setup
 
 Git Assistant currently uses:
 
@@ -31,30 +45,32 @@ Git Assistant currently uses:
 - **Default model:** `qwen3:4b`
 - **API endpoint:** `http://localhost:11434/api/chat`
 
-Make sure Ollama is running and the model is available:
+Install the required model:
 
-```bash
+```powershell
 ollama pull qwen3:4b
 ```
 
+Make sure Ollama is running before using Git Assistant.
+
 You can test the model with:
 
-```bash
+```powershell
 ollama run qwen3:4b
 ```
 
 ## Usage
 
-Generate a commit message:
+Navigate to a Git repository and run:
 
-```bash
-git-assistant commit
+```powershell
+java -jar git-assistant-1.0.0.jar commit
 ```
 
 Display the available commands:
 
-```bash
-git-assistant help
+```powershell
+java -jar git-assistant-1.0.0.jar help
 ```
 
 Git Assistant will:
@@ -76,23 +92,31 @@ git clone https://github.com/timonexus/git-assistant.git
 cd git-assistant
 ```
 
-Build and run the tests:
+Build the project and run the tests:
 
 ```bash
 mvn clean verify
+```
+
+The executable JAR will be generated in:
+
+```text
+target/git-assistant-1.0.0.jar
 ```
 
 ## Configuration
 
 The current version uses the default Ollama model `qwen3:4b` and the local Ollama API endpoint.
 
-More configuration options are planned for future releases.
+Additional configuration options are planned for future releases.
 
 ## Project Status
 
-Git Assistant is currently under active development.
+**Current version: 1.0.0**
 
-The core commit-generation workflow is implemented. Installation improvements, additional configuration options, expanded test coverage and further usability enhancements are planned.
+The core commit-generation workflow is implemented and tested.
+
+Further improvements, configuration options and usability enhancements may be added in future releases.
 
 Feedback, bug reports and feature suggestions are welcome.
 

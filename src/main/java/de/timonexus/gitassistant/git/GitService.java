@@ -392,11 +392,16 @@ public class GitService {
                 "git-assistant-output-", ".tmp"
         );
 
+        Path errorFile = Files.createTempFile(
+                "git-assistant-error-", ".tmp"
+        );
+
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.directory(repositoryPath.toFile());
-            builder.redirectErrorStream(true);
+
             builder.redirectOutput(outputFile.toFile());
+            builder.redirectError(errorFile.toFile());
 
             if (temporaryIndex != null) {
                 builder.environment().put(
@@ -424,10 +429,20 @@ public class GitService {
                     StandardCharsets.UTF_8
             );
 
-            return new ProcessResult(process.exitValue(), output);
+            String errorOutput = Files.readString(
+                    errorFile,
+                    StandardCharsets.UTF_8
+            );
+
+            return new ProcessResult(
+                    process.exitValue(),
+                    output,
+                    errorOutput
+            );
 
         } finally {
             Files.deleteIfExists(outputFile);
+            Files.deleteIfExists(errorFile);
         }
     }
 
@@ -438,11 +453,20 @@ public class GitService {
     ) throws IOException {
 
         if (result.exitCode() != 0) {
-            throw new IOException(errorMessage + " " + result.output());
+
+            String details = result.errorOutput().isBlank()
+                    ? result.output()
+                    : result.errorOutput();
+
+            throw new IOException(errorMessage + " " + details);
         }
     }
 
-    private record ProcessResult(int exitCode, String output) {
+    private record ProcessResult(
+            int exitCode,
+            String output,
+            String errorOutput
+    ) {
     }
 
     public Path getRepositoryPath() {
