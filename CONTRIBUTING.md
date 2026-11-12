@@ -23,7 +23,7 @@ Before contributing, make sure you have installed:
 
    ```bash
    git clone https://github.com/YOUR_USERNAME/git-assistant.git
-````
+``
 
 3. Navigate into the project:
    ```
