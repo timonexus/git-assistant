@@ -1,0 +1,15 @@
+# Maven
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Local configuration
+.env
+*.local
