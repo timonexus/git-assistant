@@ -1,6 +1,11 @@
 package de.timonexus.gitassistant.ai;
 
+import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
+
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,17 +16,60 @@ class OllamaServiceTest {
             throws Exception {
 
         // Arrange
-        OllamaService service = new OllamaService();
+        HttpServer server = HttpServer.create(
+                new InetSocketAddress("localhost", 0),
+                0
+        );
 
-        String prompt = "Say exactly: Hello GitAssistant";
+        server.createContext("/api/chat", exchange -> {
 
-        // Act
-        String response = service.generateResponse(prompt);
+            String response = """
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": "Hello GitAssistant"
+                        }
+                    }
+                    """;
 
-        // Assert
-        assertNotNull(response);
-        assertFalse(response.isBlank());
+            byte[] responseBytes =
+                    response.getBytes(StandardCharsets.UTF_8);
 
-        System.out.println("KI-Antwort: " + response);
+            exchange.getResponseHeaders().set(
+                    "Content-Type",
+                    "application/json"
+            );
+
+            exchange.sendResponseHeaders(
+                    200,
+                    responseBytes.length
+            );
+
+            exchange.getResponseBody().write(responseBytes);
+            exchange.close();
+        });
+
+        server.start();
+
+        try {
+            URI testUri = URI.create(
+                    "http://localhost:"
+                            + server.getAddress().getPort()
+                            + "/api/chat"
+            );
+
+            OllamaService service = new OllamaService(testUri);
+
+            // Act
+            String response = service.generateResponse(
+                    "Say exactly: Hello GitAssistant"
+            );
+
+            // Assert
+            assertEquals("Hello GitAssistant", response);
+
+        } finally {
+            server.stop(0);
+        }
     }
 }

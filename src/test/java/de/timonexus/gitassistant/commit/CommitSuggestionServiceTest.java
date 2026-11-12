@@ -1,7 +1,6 @@
 
 package de.timonexus.gitassistant.commit;
 
-import de.timonexus.gitassistant.ai.OllamaService;
 import de.timonexus.gitassistant.ai.StructuredResponseGenerator;
 import de.timonexus.gitassistant.git.GitService;
 
@@ -23,21 +22,31 @@ class CommitSuggestionServiceTest {
             throws Exception {
 
         // Arrange
+        StructuredResponseGenerator fakeAI = (prompt, schema) -> """
+                {
+                    "category": "feat",
+                    "scope": "",
+                    "title": "Add date update functionality",
+                    "description": "Added functionality to update the current date.",
+                    "reason": "This allows the application to manage dates."
+                }
+                """;
+
         CommitSuggestionService service =
-                new CommitSuggestionService(new OllamaService());
+                new CommitSuggestionService(fakeAI);
 
         String diff = """
                 diff --git a/ClockService.java b/ClockService.java
                 --- a/ClockService.java
                 +++ b/ClockService.java
                 @@ -1,3 +1,8 @@
-                 public class ClockService {
+                public class ClockService {
                 +    private LocalDate currentDate;
                 +
                 +    public void updateDate() {
                 +        currentDate = LocalDate.now();
                 +    }
-                 }
+                }
                 """;
 
         // Act
@@ -46,19 +55,10 @@ class CommitSuggestionServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertNotNull(result.category());
-        assertNotNull(result.title());
-        assertFalse(result.title().isBlank());
-
-        assertTrue(
-                java.util.List.of(
-                        "feat", "fix", "refactor", "test",
-                        "docs", "style", "perf", "build",
-                        "ci", "chore"
-                ).contains(result.category())
-        );
-
-        System.out.println(result);
+        assertEquals("feat", result.category());
+        assertEquals("Add date update functionality", result.title());
+        assertNotNull(result.description());
+        assertNotNull(result.reason());
     }
 
     @Test

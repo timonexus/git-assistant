@@ -15,8 +15,10 @@ import java.util.List;
 
 public class OllamaService implements StructuredResponseGenerator {
 
-    private static final String API_URL =
+    private static final String DEFAULT_API_URL =
             "http://localhost:11434/api/chat";
+
+    private final URI apiUri;
 
     private static final String MODEL = "qwen3:4b";
 
@@ -24,6 +26,12 @@ public class OllamaService implements StructuredResponseGenerator {
     private final ObjectMapper objectMapper;
 
     public OllamaService() {
+        this(URI.create(DEFAULT_API_URL));
+    }
+
+    public OllamaService(URI apiUri) {
+
+        this.apiUri = apiUri;
 
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -67,7 +75,7 @@ public class OllamaService implements StructuredResponseGenerator {
         );
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL))
+                .uri(apiUri)
                 .timeout(Duration.ofMinutes(3))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
